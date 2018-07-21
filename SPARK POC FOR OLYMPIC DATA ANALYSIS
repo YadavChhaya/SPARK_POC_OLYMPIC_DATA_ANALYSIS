@@ -1,0 +1,265 @@
+Spark POC – Olympics Data Analysis
+=======================================
+Data Set Description
+----------------------
+The data set consists of the following fields:
+
+Athlete: Name of the athlete
+
+Age: Age of the athlete
+
+Country: The name of the country participating in Olympics
+
+Year: The year in which Olympics is conducted
+
+Closing Date: Closing date of Olympics
+
+Sport: Sports name
+
+Gold Medals: No. of gold medals
+
+Silver Medals: No. of silver medals
+
+Bronze Medals: No. of bronze medals
+
+Total Medals: Total no. of medals
+
+Dataset Link
+---------------
+https://drive.google.com/drive/folders/0ByJLBTmJojjzVGNsWmpUUUxTZDA
+
+Problem Statement 1
+----------------------
+Find the total number of medals won by each country in swimming.
+
+Source Code:
+-------------
+
+hadoop fs -mkdir -p /user/hadoop/input/
+hadoop fs -put /home/cloudera/Downloads/olympic_data.csv /user/hadoop/input/
+spark-shell
+val rdd1 = sc.textFile("hdfs://quickstart.cloudera:8020/user/hadoop/input/olympic_data.csv")
+rdd1.count
+val rdd2 = rdd1.map{ line => line.toString() }
+val rdd3 = rdd2.map{ field => field.split("\t") }
+val rdd4 = rdd3.filter{ x => x(5).equalsIgnoreCase("swimming") }
+//Below command will check that all the values must be numerical.
+val rdd5 = rdd4.filter{ x => x(9).matches("\\d+") }
+val rdd6 = rdd5.map{ x => (x(2), x(9).toInt)}
+val rdd7 = rdd6.reduceByKey( _ + _ )
+//Sorting in descening order of keys
+val rdd8 = rdd7.sortByKey(false)
+rdd8.collect()
+rdd8.foreach(println)
+
+
+
+Output:
+---------
+
+(Zimbabwe,7)
+(United States,267)
+(Ukraine,7)
+(Tunisia,3)
+(Trinidad and Tobago,1)
+(Sweden,9)
+(Spain,3)
+(South Korea,4)
+(South Africa,11)
+(Slovenia,1)
+(Slovakia,2)
+(Serbia,1)
+(Russia,20)
+(Romania,6)
+(Poland,3)
+(Norway,2)
+(Netherlands,46)
+(Lithuania,1)
+(Japan,43)
+(Italy,16)
+(Hungary,9)
+(Great Britain,11)
+(Germany,32)
+(France,39)
+(Denmark,1)
+(Croatia,1)
+(Costa Rica,2)
+(China,35)
+(Canada,5)
+(Brazil,8)
+(Belarus,2)
+(Austria,3)
+(Australia,163)
+(Argentina,1)
+
+
+
+
+
+Problem Statement 2
+-----------------------
+Find the number of medals that India won year wise.
+
+val rdd1 = sc.textFile("hdfs://quickstart.cloudera:8020/user/hadoop/input/olympic_data.csv")
+rdd1.count
+val rdd2 = rdd1.map{ line => line.toString() }
+val rdd3 = rdd2.map{ field => field.split("\t") }
+val rdd4 = rdd3.filter{ x => x(2).equalsIgnoreCase("India") }
+//Verification of the field as a numerical
+val rdd5 = rdd4.filter{ x => x(9).matches("\\d+") }
+val rdd6 = rdd5.map{ x => ((x(2),x(3)), x(9).toInt)}
+val rdd7 = rdd6.reduceByKey( _ + _ )
+//sorting in ascending order
+val rdd8 = rdd7.sortByKey()
+rdd8.collect()
+rdd8.foreach(println)
+
+Output: 
+----------
+((India,2000),1)
+((India,2004),1)
+((India,2008),3)
+((India,2012),6)
+
+
+
+Problem Statement 3
+--------------------
+
+Find the total number of medals won by each country.
+
+Source Code
+------------
+val rdd1 = sc.textFile("hdfs://quickstart.cloudera:8020/user/hadoop/input/olympic_data.csv")
+rdd1.count
+val rdd2 = rdd1.map{ line => line.toString() }
+val rdd3 = rdd2.map{ field => field.split("\t") }
+//Below command will check that all the values must be numerical.
+val rdd4 = rdd3.filter{ x => x(9).matches("\\d+") }
+val rdd5 = rdd4.map{ x => (x(2), x(9).toInt)}
+val rdd6 = rdd5.reduceByKey( _ + _ )
+//Sorting in descening order of keys
+val rdd7 = rdd6.sortByKey()
+rdd7.collect()
+rdd7.foreach(println)
+
+
+
+Output:
+------------
+(Afghanistan,2)
+(Algeria,8)
+(Argentina,141)
+(Armenia,10)
+(Australia,609)
+(Austria,91)
+(Azerbaijan,25)
+(Bahamas,24)
+(Bahrain,1)
+(Barbados,1)
+(Belarus,97)
+(Belgium,18)
+(Botswana,1)
+(Brazil,221)
+(Bulgaria,41)
+(Cameroon,20)
+(Canada,370)
+(Chile,22)
+(China,530)
+(Chinese Taipei,20)
+(Colombia,13)
+(Costa Rica,2)
+(Croatia,81)
+(Cuba,188)
+(Cyprus,1)
+(Czech Republic,81)
+(Denmark,89)
+(Dominican Republic,5)
+(Ecuador,1)
+(Egypt,8)
+(Eritrea,1)
+(Estonia,18)
+(Ethiopia,29)
+(Finland,118)
+(France,318)
+(Gabon,1)
+(Georgia,23)
+(Germany,629)
+(Great Britain,322)
+(Greece,59)
+(Grenada,1)
+(Guatemala,1)
+(Hong Kong,3)
+(Hungary,145)
+(Iceland,15)
+(India,11)
+(Indonesia,22)
+(Iran,24)
+(Ireland,9)
+(Israel,4)
+(Italy,331)
+(Jamaica,80)
+(Japan,282)
+(Kazakhstan,42)
+(Kenya,39)
+(Kuwait,2)
+(Kyrgyzstan,3)
+(Latvia,17)
+(Lithuania,30)
+(Macedonia,1)
+(Malaysia,3)
+(Mauritius,1)
+(Mexico,38)
+(Moldova,5)
+(Mongolia,10)
+(Montenegro,14)
+(Morocco,11)
+(Mozambique,1)
+(Netherlands,318)
+(New Zealand,52)
+(Nigeria,39)
+(North Korea,21)
+(Norway,192)
+(Panama,1)
+(Paraguay,17)
+(Poland,80)
+(Portugal,9)
+(Puerto Rico,2)
+(Qatar,3)
+(Romania,123)
+(Russia,768)
+(Saudi Arabia,6)
+(Serbia,31)
+(Serbia and Montenegro,38)
+(Singapore,7)
+(Slovakia,35)
+(Slovenia,25)
+(South Africa,25)
+(South Korea,308)
+(Spain,205)
+(Sri Lanka,1)
+(Sudan,1)
+(Sweden,181)
+(Switzerland,93)
+(Syria,1)
+(Tajikistan,3)
+(Thailand,18)
+(Togo,1)
+(Trinidad and Tobago,19)
+(Tunisia,4)
+(Turkey,28)
+(Uganda,1)
+(Ukraine,143)
+(United Arab Emirates,1)
+(United States,1312)
+(Uruguay,1)
+(Uzbekistan,19)
+(Venezuela,4)
+(Vietnam,2)
+(Zimbabwe,7)
+
+
+
+
+
+
